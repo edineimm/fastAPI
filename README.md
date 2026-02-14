@@ -1,2 +1,2 @@
-# FastAPI---API-Modernas-e-Ass-ncronas-com-Python
+# FastAPI
 https://www.udemy.com/course/fastapi-apis-modernas-e-assincronas-com-python/
