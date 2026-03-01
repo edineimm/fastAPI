@@ -1,0 +1,38 @@
+IPv4 Public: 157.245.221.17
+
+Conexão com a maquina virtual criada no DigitalOcean
+
+selecionar chave: SSH
+
+abri CMD
+> ssh root@157.245.221.17
+> yes
+
+atualizar:
+> apt update && apt upgrade -y
+> ok
+> reboot
+> add-apt-repository ppa:certbot/certbot    # instala um certificado digital
+> apt install build-essential git unzip zip nload tree python3-dev python3-pip python3-venv fail2ban acl nginx postgresql postgresql-contrib
+python3-certbot-nginx -y
+> ufw default deny incoming     # bloqueia todas as portas de entrada
+> ufw allow 22      # ativa apenas a porta 22 (ssh)
+> ufw allow 80      # http
+> ufw allow 443     # https
+> ufw enable        # ativa o firewall
+> reboot
+
+configurar usuario
+
+> useradd -M guniversity    # cria usuario 'guniversity'
+> usermod -L guniversity    # remove a permissão de login
+> mkdir /apps               # cria diretorio 'apps'
+> chmod 777 /apps           # add permissão de escrita em 'apps'
+> mkdir /apps/logs
+> mkdir /apps/logs/gufapi
+> touch /apps/logs/gufapi/app_log
+> cd /apps/
+> setfacl -m u:guniversity:rwx /apps/logs/gufapi
+> git clone <repository>
+
+
