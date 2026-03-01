@@ -35,4 +35,36 @@ configurar usuario
 > setfacl -m u:guniversity:rwx /apps/logs/gufapi
 > git clone <repository>
 
+.. acessar diretorio <secao06>
 
+criar ambiente virtual (venv):
+> python3 -m venv venv
+> source venv/bin/activate
+> pip install --upgrade pip setuptools wheel
+> pip install -r requirements.txt
+
+configurar banco de dados
+> sudo -u postgres createuser --interactive
+user> postgres #usuario chamado 'postgres'
+> yes
+> sudo -i -u postgres
+> psql      # abri terminal do banco de dados
+
+> postgres=# alter user postgres with passwork 'postgres';
+
+=# CTRL + q
+> exit()
+
+(venv) ..> # cd
+> cd /etc/postgresql/16/main/
+> nano pg_hba.conf
+.. scrolar até o fim
+
+trocar: peer -> md5 (os dois primeiros)
+
+> systemctl restart postgresql
+
+> sudo -i -u postgres
+
+/apps/fastAPI/famp/secao06
+:/etc/systemd/system
