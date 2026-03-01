@@ -1,0 +1,33 @@
+[Unit]
+Description=Projeto FastAPI
+After=network.target
+
+[Service]
+WorkingDirectory=/apps/fastAPI/famp/secao06
+ExecStart=/apps/fastAPI/famp/secao06/venv/bin/gunicorn main:app -b 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker -w 4 --graceful -timeout 0 --acess-logfile /apps/logs/gufapi/app_log
+Restart=always
+KillSignal=SIGQUIT
+Type=notify
+StardardError=syslog
+NotifyAccess=all
+
+[Install]
+WantedBy=multi-user.target
+
+(venv) root@ubuntu-s-1vcpu-512mb-10gb-nyc3-01:/etc/systemd/system# nano secao06.service
+(venv) root@ubuntu-s-1vcpu-512mb-10gb-nyc3-01:/etc/systemd/system# cat secao06.service
+[Unit]
+Description=Projeto FastAPI
+After=network.target
+
+[Service]
+WorkingDirectory=/apps/fastAPI/famp/secao06
+ExecStart=/apps/fastAPI/famp/secao06/venv/bin/gunicorn main:app -b 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker -w 4 --graceful-timeout 0 --acess-logfile /apps/logs/gufapi/app_log
+Restart=always
+KillSignal=SIGQUIT
+Type=notify
+StardardError=syslog
+NotifyAccess=all
+
+[Install]
+WantedBy=multi-user.targe
