@@ -1,12 +1,25 @@
+from pydantic import BaseModel
 from typing import Optional
-from pydantic import BaseModel, HttpUrl
 
 
-class ArtigoSchema(BaseModel):
-    id: Optional[int] = None
+class ArtigoSchemaBase(BaseModel):
     titulo: str
     descricao: str
-    url: HttpUrl
+    url_fonte: str
+
+
+class ArtigoSchemaCreate(ArtigoSchemaBase):
+    pass  # usado para POST
+
+
+class ArtigoSchemaUpdate(BaseModel):
+    titulo: Optional[str] = None
+    descricao: Optional[str] = None
+    url_fonte: Optional[str] = None
+
+
+class ArtigoSchema(ArtigoSchemaBase):
+    id: Optional[int]
     usuario_id: Optional[int]
 
     class Config:

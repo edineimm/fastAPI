@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from models.artigo_model import ArtigoModel
 from models.usuario_model import UsuarioModel
-from schemas.artigo_schema import ArtigoSchema
+from schemas.artigo_schema import ArtigoSchema, ArtigoSchemaCreate, ArtigoSchemaUpdate
 from core.deps import get_session, get_current_user
 
 router = APIRouter()
@@ -13,7 +13,7 @@ router = APIRouter()
 
 
 @router.post('/', status_code=status.HTTP_201_CREATED, response_model=ArtigoSchema)
-async def post_artigo(artigo: ArtigoSchema, usuario_logado: UsuarioModel = Depends(get_current_user), db: AsyncSession = Depends(get_session)):
+async def post_artigo(artigo: ArtigoSchemaCreate, usuario_logado: UsuarioModel = Depends(get_current_user), db: AsyncSession = Depends(get_session)):
     novo_artigo = ArtigoModel(
         titulo=artigo.titulo,
         descricao=artigo.descricao,
@@ -52,30 +52,39 @@ async def get_artigo(artigo_id: int, db: AsyncSession = Depends(get_session)):
 # PUT Artigo por ID
 
 
-@router.put('/{artigo_id}', response_model=ArtigoSchema, status_code=status.HTTP_200_OK)
-async def put_artigo(artigo_id: int, artigo: ArtigoSchema, usuario_logado: UsuarioModel = Depends(get_current_user), db: AsyncSession = Depends(get_session)):
-    async with db as session:
-        query = select(ArtigoModel).filter(ArtigoModel.id == artigo_id)
-        result = await session.execute(query)
-        artigo_up: ArtigoModel = result.scalars().unique().one_or_none()
+@router.put(
+    '/{artigo_id}',
+    response_model=ArtigoSchema,
+    status_code=status.HTTP_200_OK
+)
+async def put_artigo(
+    artigo_id: int,
+    artigo: ArtigoSchemaUpdate,   # usar schema de atualização
+    usuario_logado: UsuarioModel = Depends(get_current_user),
+    db: AsyncSession = Depends(get_session)
+):
+    query = select(ArtigoModel).filter(ArtigoModel.id == artigo_id)
+    result = await db.execute(query)
+    artigo_up: ArtigoModel = result.scalars().unique().one_or_none()
 
-        if artigo_up:
-            if artigo.titulo:
-                artigo_up.titulo = artigo.titulo
-            if artigo.descricao:
-                artigo_up.descricao = artigo.descricao
-            if artigo.url_fonte:
-                artigo_up.url_fonte = artigo.url_fonte
-            if usuario_logado.id != artigo_up.usuario_id:
-                artigo_up.usuario_id = usuario_logado.id
+    if artigo_up:
+        if artigo.titulo is not None:
+            artigo_up.titulo = artigo.titulo
+        if artigo.descricao is not None:
+            artigo_up.descricao = artigo.descricao
+        if artigo.url_fonte is not None:
+            artigo_up.url_fonte = artigo.url_fonte
+        if usuario_logado.id != artigo_up.usuario_id:
+            artigo_up.usuario_id = usuario_logado.id
 
-            await session.commit()
+        await db.commit()
+        await db.refresh(artigo_up)
+        return artigo_up
 
-            return artigo_up
-
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Artigo não encontrado")
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Artigo não encontrado"
+    )
 
 # DELETE Artigo por ID
 

@@ -126,5 +126,5 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
     if not usuario:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Email ou senha incorretos")
-    token_acesso = criar_token_acesso(sub=usuario.id)
+    token_acesso = criar_token_acesso(sub=str(usuario.id))
     return JSONResponse(content={"access_token": token_acesso, "token_type": "bearer"}, status_code=status.HTTP_200_OK)

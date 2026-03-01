@@ -26,27 +26,56 @@ async def get_session() -> Generator:
         yield session
 
 
-async def get_current_user(db: AsyncSession = Depends(get_session), token: str = Depends(oauth2_schema)) -> UsuarioModel:
-    credentials_exception: HTTPException = HTTPException(
+# async def get_current_user(db: AsyncSession = Depends(get_session), token: str = Depends(oauth2_schema)) -> UsuarioModel:
+#     credentials_exception: HTTPException = HTTPException(
+#         status_code=status.HTTP_401_UNAUTHORIZED,
+#         detail="Não foi possível validar as credenciais",
+#         headers={"WWW-Authenticate": "Bearer"},
+#     )
+#     try:
+#         payload = jwt.decode(token, settings.JWT_SECRET,
+#                              algorithms=[settings.ALGORITHM],
+#                              options={"verify_aud": False})
+#         username: str = payload.get("sub")
+#         if username is None:
+#             raise credentials_exception
+#         token_data: TokenData = TokenData(username=username)
+#     except JWTError:
+#         raise credentials_exception
+#     async with db as session:
+#         query = select(UsuarioModel).filter(
+#             UsuarioModel.id == int(token_data.username))
+#         result = await session.execute(query)
+#         usuario: UsuarioModel = result.scalars().unique().one_or_none()
+#         if usuario is None:
+#             raise credentials_exception
+#         return usuario
+
+async def get_current_user(
+    db: AsyncSession = Depends(get_session),
+    token: str = Depends(oauth2_schema)
+) -> UsuarioModel:
+    credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Não foi possível validar as credenciais",
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, settings.JWT_SECRET,
-                             algorithms=[settings.ALGORITHM],
-                             options={"verify_aud": False})
-        username: str = payload.get("sub")
-        if username is None:
+        payload = jwt.decode(
+            token,
+            settings.JWT_SECRET,
+            algorithms=[settings.ALGORITHM],
+            options={"verify_aud": False}
+        )
+        usuario_id: str = payload.get("sub")
+        if usuario_id is None:
             raise credentials_exception
-        token_data: TokenData = TokenData(username=username)
     except JWTError:
         raise credentials_exception
-    async with db as session:
-        query = select(UsuarioModel).filter(
-            UsuarioModel.id == int(token_data.username))
-        result = await session.execute(query)
-        usuario: UsuarioModel = result.scalars().unique().one_or_none()
-        if usuario is None:
-            raise credentials_exception
-        return usuario
+
+    query = select(UsuarioModel).filter(UsuarioModel.id == int(usuario_id))
+    result = await db.execute(query)
+    usuario: UsuarioModel = result.scalars().unique().one_or_none()
+    if usuario is None:
+        raise credentials_exception
+    return usuario
