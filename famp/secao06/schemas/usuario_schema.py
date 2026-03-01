@@ -1,6 +1,5 @@
-from typing import Optional
-from typing import List
-from pydantic import BaseModel, EmailStr
+from typing import Optional, List
+from pydantic import BaseModel, EmailStr, constr
 from schemas.artigo_schema import ArtigoSchema
 
 
@@ -16,16 +15,19 @@ class UsuarioSchemaBase(BaseModel):
 
 
 class UsuarioSchemaCreate(UsuarioSchemaBase):
-    senha: str
+    senha: constr(min_length=8)
 
 
 class UsuarioSchemaArtigos(UsuarioSchemaBase):
     artigos: Optional[List[ArtigoSchema]]
 
 
-class UsuarioSchemaUp(UsuarioSchemaBase):
-    nome: Optional[str]
-    sobrenome: Optional[str]
-    email: Optional[EmailStr]
-    senha: Optional[str]
-    eh_admin: Optional[bool]
+class UsuarioSchemaUp(BaseModel):
+    nome: Optional[str] = None
+    sobrenome: Optional[str] = None
+    email: Optional[EmailStr] = None
+    senha: Optional[constr(min_length=8)] = None
+    eh_admin: Optional[bool] = None
+
+    class Config:
+        from_attributes = True
