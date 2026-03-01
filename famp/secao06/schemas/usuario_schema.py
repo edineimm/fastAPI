@@ -1,8 +1,6 @@
 from typing import Optional
 from typing import List
-
 from pydantic import BaseModel, EmailStr
-
 from schemas.artigo_schema import ArtigoSchema
 
 
@@ -14,7 +12,7 @@ class UsuarioSchemaBase(BaseModel):
     eh_admin: bool = False
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class UsuarioSchemaCreate(UsuarioSchemaBase):

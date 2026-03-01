@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from core.auth import oauth2_schema
 from models.usuario_model import UsuarioModel
 from core.configs import settings
-
+from core.database import SessionLocal
 
 """"
 esse script tem a função de criar as dependências do projeto, ou seja, as funções que serão usadas como dependências em outros scripts, 
@@ -22,14 +22,11 @@ class TokenData(BaseModel):
 
 
 async def get_session() -> Generator:
-    session: AsyncSession = Session()
-    try:
+    async with SessionLocal() as session:
         yield session
-    finally:
-        await session.close()
 
 
-async def get_current_user(db: Session = Depends(get_session), token: str = Depends(oauth2_schema)) -> UsuarioModel:
+async def get_current_user(db: AsyncSession = Depends(get_session), token: str = Depends(oauth2_schema)) -> UsuarioModel:
     credentials_exception: HTTPException = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Não foi possível validar as credenciais",
